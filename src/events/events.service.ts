@@ -93,7 +93,7 @@ export class EventsService {
 
   @Get('events')
   async getEventsWithWorkshops() {
-    return this.eventRepository.createQueryBuilder('event').leftJoinAndMapMany('event.workshops',Workshop,'workshop','event.id = workshop.eventId').orderBy('event.workshops.id','ASC').getMany()
+    return this.eventRepository.createQueryBuilder('event').leftJoinAndMapMany('event.workshops',Workshop,'workshop','event.id = workshop.eventId').orderBy({'workshop.id':'ASC'}).getMany()
   }
 
   /*
@@ -163,6 +163,27 @@ export class EventsService {
      */
   @Get('futureevents')
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    return this.eventRepository.createQueryBuilder('event').leftJoinAndMapMany('event.workshops',Workshop,'workshop','event.id = workshop.eventId').where('workshop.start > :date',{date: new Date()}).getMany()
+
+  }
+
+  private padTo2Digits(num: Number) {
+    return num.toString().padStart(2, '0');
+  }
+  
+  private formatDate(date:Date) {
+    return (
+      [
+        date.getFullYear(),
+        this.padTo2Digits(date.getMonth() + 1),
+        this.padTo2Digits(date.getDate()),
+      ].join('-') +
+      ' ' +
+      [
+        this.padTo2Digits(date.getHours()),
+        this.padTo2Digits(date.getMinutes()),
+        this.padTo2Digits(date.getSeconds()),
+      ].join(':')
+    );
   }
 }
